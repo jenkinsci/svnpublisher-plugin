@@ -114,15 +114,12 @@ public class SVNForceImport {
 			}
 			if (svnURL.length()==0){
 				System.err.println("SVNForceImport Error: Missing repository URL\n");
-				System.exit(1);
 			}
 		} catch(Exception e){
 			System.err.println("SVNForceImport Error: Error while parsing options\n");
-			System.exit(1);
 		}
 		forceImport(svnURL, user, password, target, importItems, pomPath , null, null, null);
 		
-		System.exit(0);
 	}
 	
 	/**
