@@ -1,0 +1,8 @@
+<div>
+ If a pom.xml location is given in the pom path then items can use _MAJOR_, _MINOR_, and _PATCH_ providing the associated paths are set. These paths point out where in the pom.xml any major/minor/patch numbers might be located. 
+ <br> syntax: 
+ <br> "properties.major" indicates that in the root of the pom file there is a properties node and in that node there is a node called major which contains the major version. This must be a number.
+ <br> "version[0]" indicates that there is a version node in the root of the pom and in that there is a version string like 1.2.3 of which we look at the 1st number.
+ <br> "prop.version.majorminor[1]" indicates a majorminor node nested in a version node nested in a prop node located in the pom root. inside this we take the second number in the period-delimited field.
+ <br> if no path is given but a version variable (_MAJOR_, _MINOR_, or _PATH_) then it is set to 0.
+</div>
