@@ -1,5 +1,7 @@
 package com.mtvi.plateng.subversion;
 
+import org.kohsuke.stapler.DataBoundConstructor;
+
 /**
  * A class used to hold information as to how a file or folder (or set of files/folder) is to be recognized, 
  * where the matching files/folders are to be placed in the project repository, and what name should be given to the 
@@ -13,25 +15,26 @@ public class ImportItem {
 	/**
 	 * The pattern used to find files/folders covered by this item.
 	 */
-	private String _pattern = "";
+	private String pattern;
 	/**
 	 * The path within the repository's project root where the items are to be placed. 
 	 */
-	private String _svnPath = "";
+	private String path;
 	/**
 	 * The name to be used when placing an item in the repository.
 	 */
-	private String _name = "";
+	private String name;
 	
 	/**
 	 * @param pattern		The pattern to be used to find matching files/folders.
-	 * @param svnPath		The path within the project repository where matched items are to be placed.
+	 * @param path		The path within the project repository where matched items are to be placed.
 	 * @param name			The name given to items when they are placed in the repository.
 	 */
-	public ImportItem(String pattern, String svnPath, String name){
-		_pattern = pattern;
-		_svnPath = svnPath;
-		_name = name;
+	@DataBoundConstructor
+	public ImportItem(String pattern, String path, String name){
+		this.pattern = pattern;
+		this.path = path;
+		this.name = name;
 	}
 
 	/**
@@ -39,8 +42,8 @@ public class ImportItem {
 	 * 
 	 * @return the pattern used to find files/folders covered by this item.
 	 */
-	public String get_pattern() {
-		return _pattern;
+	public String getPattern() {
+		return pattern;
 	}
 
 	/**
@@ -48,8 +51,8 @@ public class ImportItem {
 	 * 
 	 * @return the path within the repository's project root where the items are to be placed. 
 	 */
-	public String get_svnPath() {
-		return _svnPath;
+	public String getPath() {
+		return path;
 	}
 
 	/**
@@ -57,8 +60,8 @@ public class ImportItem {
 	 * 
 	 * @return the name to be used when placing an item in the repository.
 	 */
-	public String get_name() {
-		return _name;
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -66,8 +69,8 @@ public class ImportItem {
 	 * 
 	 * @param _pattern the pattern used to find files/folders covered by this item.
 	 */
-	public void set_pattern(String _pattern) {
-		this._pattern = _pattern;
+	public void setPattern(String pattern) {
+		this.pattern = pattern;
 	}
 
 	/**
@@ -75,8 +78,8 @@ public class ImportItem {
 	 * 
 	 * @param path the path within the repository's project root where the items are to be placed. 
 	 */
-	public void set_svnPath(String path) {
-		_svnPath = path;
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 	/**
@@ -84,7 +87,7 @@ public class ImportItem {
 	 * 
 	 * @param _name the name to be used when placing an item in the repository.
 	 */
-	public void set_name(String _name) {
-		this._name = _name;
+	public void setName(String name) {
+		this.name = name;
 	}
 }

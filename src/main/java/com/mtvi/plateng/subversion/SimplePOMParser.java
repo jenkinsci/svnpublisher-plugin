@@ -64,19 +64,13 @@ public class SimplePOMParser {
 			Element root = doc.getDocumentElement();
 			
 			if (null != majorPath){
-				System.out.println("looking for major at : " + majorPath);
 				major = getValue(root, majorPath);
-				System.out.println("found for major: " + major);
 			}
 			if (null != minorPath){
-				System.out.println("looking for minor at : " + minorPath);
 				minor = getValue(root, minorPath);
-				System.out.println("found for minor: " + minor);
 			}
 			if (null != patchPath){
-				System.out.println("looking for patch at : " + patchPath);
 				patch = getValue(root, patchPath);
-				System.out.println("found for patch: " + patch);
 			}
 			
 						
@@ -97,7 +91,6 @@ public class SimplePOMParser {
 			for (int i = 0; i < pathElements.length -1; i++){
 				
 				NodeList nl = node.getChildNodes();
-				System.out.println("number of childern: " + nl.getLength());
 				for (int j = 0; j < nl.getLength(); j++){
 					if (nl.item(j).getNodeName().equalsIgnoreCase(pathElements[i])){
 						node = (Element) nl.item(j);
@@ -108,7 +101,6 @@ public class SimplePOMParser {
 			}
 			
 			nodeName = pathElements[pathElements.length-1];
-			System.out.println("nodeName: " + nodeName);
 			if (nodeName.contains("[")){
 				
 				// this could be prettied up a lot
@@ -117,7 +109,6 @@ public class SimplePOMParser {
 				nodeName = nodeSplit[0];
 				
 				NodeList nl = node.getChildNodes();
-				System.out.println("final number of childern: " + nl.getLength());
 				for (int i = 0; i < nl.getLength(); i++){
 					if (nl.item(i).getNodeName().equalsIgnoreCase(nodeName)){
 						node = (Element) nl.item(i);
@@ -128,7 +119,6 @@ public class SimplePOMParser {
 				value = Integer.parseInt(node.getFirstChild().getNodeValue().split("\\.")[valueSplit]);
 			}else{
 				NodeList nl = node.getChildNodes();
-				System.out.println("final number of childern: " + nl.getLength());
 				for (int i = 0; i < nl.getLength(); i++){
 					if (nl.item(i).getNodeName().equalsIgnoreCase(nodeName)){
 						node = (Element) nl.item(i);
@@ -140,7 +130,6 @@ public class SimplePOMParser {
 
 			return value;
 		}catch (Exception e){
-			System.out.println("error while getting value: " + path + " : " + e.getMessage());
 			return -1;	
 		}
 	}

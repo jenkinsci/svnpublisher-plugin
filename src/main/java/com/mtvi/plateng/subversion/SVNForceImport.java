@@ -91,13 +91,11 @@ public class SVNForceImport {
 					
 				}else if(args[i].equalsIgnoreCase("-u")){
 					// set username
-					System.out.println("User: " + args[i+1]);
 					user = args[i+1];
 					i+=2;
 
 				}else if(args[i].equalsIgnoreCase("-p")){
 					// set password
-					System.out.println("Password: " + args[i+1]);
 					password = args[i+1];
 					i+=2;
 
@@ -144,7 +142,6 @@ public class SVNForceImport {
 		if (!targetDir.canRead()) {
 			System.err.println("SVNForceImport Error: target File/Directory not accessable: " + target);
 		}
-		System.out.println("SVNForceImport: target: " + target);
 		
 		// pom is not required, but without it MAJOR/MINOR/PATCH variables won't be available
 
@@ -158,7 +155,6 @@ public class SVNForceImport {
 			spp.setMinorPath(minorPath);
 			spp.setPatchPath(patchPath);
 			spp.parse(pom);
-			System.out.println("SVNForceImport: pomPath: " + pomPath);
 		}
 		
 		SVNRepository repository = null;
@@ -180,26 +176,26 @@ public class SVNForceImport {
 			// import each item
 			for (ImportItem item: items){
 				// if the pom and major/minor/patch paths have been included attempt to do some simple replacement
-				item.set_name(variableReplace(spp, item.get_name()));
-				item.set_pattern(variableReplace(spp, item.get_pattern()));
-				item.set_svnPath(variableReplace(spp, item.get_svnPath()));
+				item.setName(variableReplace(spp, item.getName()));
+				item.setPattern(variableReplace(spp, item.getPattern()));
+				item.setPath(variableReplace(spp, item.getPath()));
 				
-				ArrayList<File> files = matchFiles(item.get_pattern(), targetDir);
+				ArrayList<File> files = matchFiles(item.getPattern(), targetDir);
 				String prefix = "";
 				for (int i = 0; i < files.size(); i++){
 					
-					ensurePath(repository, commitClient, svnURL, item.get_svnPath());
+					ensurePath(repository, commitClient, svnURL, item.getPath());
 					
 					if (!files.get(i).canRead()) {
 						System.err.println("SVNForceImport Error: File/Directory not accessable: " + files.get(i).getAbsolutePath());
 					}
 	
-					SVNNodeKind nodeKind = repository.checkPath(item.get_svnPath() + prefix + item.get_name(), -1);
+					SVNNodeKind nodeKind = repository.checkPath(item.getPath() + prefix + item.getName(), -1);
 					if (nodeKind == SVNNodeKind.NONE){
-						insertItem(commitClient, svnURL + "/" + item.get_svnPath(), files.get(i), prefix + item.get_name());
+						insertItem(commitClient, svnURL + "/" + item.getPath(), files.get(i), prefix + item.getName());
 					} else {
-						deleteItem(commitClient, svnURL + "/" + item.get_svnPath() + prefix + item.get_name());
-						insertItem(commitClient, svnURL + "/" + item.get_svnPath(), files.get(i), prefix + item.get_name());
+						deleteItem(commitClient, svnURL + "/" + item.getPath() + prefix + item.getName());
+						insertItem(commitClient, svnURL + "/" + item.getPath(), files.get(i), prefix + item.getName());
 					}
 					
 					prefix = Integer.toString(i + 1);
@@ -226,7 +222,6 @@ public class SVNForceImport {
 	private static SVNCommitInfo insertItem(SVNCommitClient client, String fullURL, File importItem, String name)
 	throws SVNException {
 		String logMessage = "SVNForceImport importing: " + importItem.getAbsolutePath();
-		System.out.println(logMessage);
 		return client.doImport(
 				importItem, 							// File/Directory to be imported
 				SVNURL.parseURIEncoded(fullURL + name), // location within svn 
@@ -250,7 +245,6 @@ public class SVNForceImport {
 	throws SVNException {
 
 		String logMessage = "SVNForceImport removing: " + fullURL;
-		System.out.println(logMessage);
 		SVNURL[] urls = {SVNURL.parseURIEncoded(fullURL)};
 		return client.doDelete(urls, logMessage);
 
@@ -268,7 +262,6 @@ public class SVNForceImport {
 	throws SVNException {
 
 		String logMessage = "SVNForceImport creating Directory : " + fullPath;
-		System.out.println(logMessage);
 		SVNURL[] urls = {SVNURL.parseURIEncoded(fullPath)};
 		return client.doMkDir(urls, logMessage);
 
@@ -301,7 +294,6 @@ public class SVNForceImport {
 		for (File file : parent.listFiles()){ 
 			matcher = pattern.matcher(file.getName());
 			if (matcher.matches()){
-				System.out.println("SVNForceImport - File Matched: " + file.getName());
 				files.add(file);
 			}
 		}
@@ -345,7 +337,6 @@ public class SVNForceImport {
 					SVNNodeKind nodeKind = repository.checkPath(constructedPath + dirs[i], -1);
 					if (nodeKind == SVNNodeKind.NONE){
 						createDir(commitClient, svnURL + "/" +  constructedPath + dirs[i]);
-						System.out.println("SVNForceImport Creating directory: " + svnURL + "/" +  constructedPath + dirs[i]);
 					}
 					constructedPath += dirs[i] + "/";
 					

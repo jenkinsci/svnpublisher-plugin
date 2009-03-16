@@ -34,7 +34,7 @@ public class SVNPublisher extends Publisher {
         private String svnUrl;
         private String pomPath;
         private String target;
-        private String items;
+        private ArrayList<ImportItem> items;
         private String user;
         private String password;
         private String majorPath;
@@ -45,7 +45,7 @@ public class SVNPublisher extends Publisher {
      * {@stapler-constructor}
      */
     @DataBoundConstructor
-    public SVNPublisher(String svnUrl, String pomPath, String target, String items, String user, String password, String majorPath, String minorPath, String patchPath){
+    public SVNPublisher(String svnUrl, String pomPath, String target, ArrayList<ImportItem> items, String user, String password, String majorPath, String minorPath, String patchPath){
         this.svnUrl = svnUrl;
         this.pomPath = pomPath;
         this.target = target;
@@ -73,8 +73,12 @@ public class SVNPublisher extends Publisher {
         return target;
     }
     
-    public String getItems() {
+    public ArrayList<ImportItem> getItems() {
         return items;
+    }
+    
+    public void setItems(ArrayList <ImportItem> items){
+    	this.items = items;
     }
     
     public String getUser() {
@@ -124,7 +128,7 @@ public class SVNPublisher extends Publisher {
             public String svnUrl;
             public String pomPath;
             public String target;
-            public String items;
+            public ArrayList <ImportItem> items;
             public String user;
             public String password;
             public String majorPath;
@@ -184,10 +188,13 @@ public class SVNPublisher extends Publisher {
             return pomPath;
         }
         
-        public String getItems() {
-            return items;
-        }
         
+        public List<ImportItem> getItems(SVNPublisher instance) {
+            if (instance == null) {
+                return new ArrayList<ImportItem> ();
+            }
+            return instance.getItems(); 
+        }
         public String getUser() {
             return user;
         }
@@ -200,38 +207,20 @@ public class SVNPublisher extends Publisher {
         @Override
         public Publisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             JSONObject cleanedFormData = cleanJSON(formData);
+            SVNPublisher instance = req.bindJSON(SVNPublisher.class, cleanedFormData);
+            ArrayList<ImportItem> itemsList = new ArrayList<ImportItem>(req.bindJSONToList(ImportItem.class, cleanedFormData.get("itm")));
+            instance.setItems(itemsList);
+
+            return instance;
             
-            Publisher publisher = req.bindJSON(clazz, cleanedFormData);
-            return publisher;
         }
 
-        public void svnImport(String svnUrl, String target, String items, String user, String password, String pomPath,  String majorPath, String minorPath, String patchPath) throws Exception {
+        public void svnImport(String svnUrl, String target, ArrayList<ImportItem> items, String user, String password, String pomPath,  String majorPath, String minorPath, String patchPath) throws Exception {
             
             LOGGER.info("Attempting to import to SVN: " + svnUrl);
             
-            // Need to create some repeating jelly input method for the import items
-            
-            SVNForceImport.forceImport(svnUrl, user, password, target,  parseItems(items), pomPath, majorPath, minorPath, patchPath);
-
-        }
-        
-        // temp function to allow a list of comma seperated import items to be fed into a simple text field.
-        private ArrayList<ImportItem> parseItems(String items){
-        	
-        	ArrayList<ImportItem> itemsArray = new ArrayList<ImportItem>();
-        	
-        	String[] itemSplit = items.split(",");
-        	
-        	for (int i = 0; i < itemSplit.length; i +=3 ){
-        		String pattern = itemSplit[i];
-        		String svnPath = itemSplit[i+1];
-        		String name = itemSplit[i+2];
-        		
-        		ImportItem item = new ImportItem( pattern, svnPath, name);
-        		itemsArray.add(item);
-        	}
-        	
-        	return itemsArray;        	
+             SVNForceImport.forceImport(svnUrl, user, password, target,  items, pomPath, majorPath, minorPath, patchPath);
+	
         }
     }
 }

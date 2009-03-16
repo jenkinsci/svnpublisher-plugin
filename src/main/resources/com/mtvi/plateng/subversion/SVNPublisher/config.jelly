@@ -5,8 +5,39 @@
   <f:entry title="Target path:" help="/plugin/svnPublish/help-target.html">
 	<input class="setting-input" name="svnpublish.target" type="text" value="${instance.target}" />
   </f:entry>
+  
   <f:entry title="Items:" help="/plugin/svnPublish/help-items.html">
-	<input class="setting-input" name="svnpublish.items" type="text" value="${instance.items}" />
+	<!--<input class="setting-input" name="svnpublish.items" type="text" value="${instance.items}" />-->
+  
+  
+    <f:repeatable var="itm" varStatus="itmStatus" items="${descriptor.getItems(instance)}">
+            <table width="100%">
+                <col width="25%"/>
+                <col width="25%"/>
+                <col width="50%"/>
+
+                <tbody>
+                	<tr> 
+                		<th>Pattern</th>
+                		<th> Name </th>
+                		<th> Path </th>
+                	</tr>
+                    <tr>
+                        <td>
+                            <f:textbox name="svnpublish.item.pattern"  value="${itm.pattern}"/>
+                        </td>
+                        
+                        <td>
+                            <f:textbox name="svnpublish.item.name" value="${itm.name}"/>
+                        </td>
+                        
+                        <td>
+                            <f:textbox name="svnpublish.item.path"  value="${itm.path}"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+    </f:repeatable>
   </f:entry>
   <f:advanced>
     <f:entry title="pom.xml path:" help="/plugin/svnPublish/help-pom.html">
