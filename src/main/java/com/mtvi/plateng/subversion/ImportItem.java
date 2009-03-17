@@ -35,6 +35,7 @@ public class ImportItem {
 		this.pattern = pattern;
 		this.path = path;
 		this.name = name;
+		
 	}
 
 	/**

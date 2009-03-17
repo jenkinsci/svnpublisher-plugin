@@ -3,6 +3,7 @@ package com.mtvi.plateng.subversion;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +22,7 @@ import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNCommitClient;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
+
 /**
  * SVNForceImport can be used to import a maven project into an svn repository. It has the ability to import numerous
  * different files/folders based on matching a regular expression pattern. Each matched item can be renamed and placed
@@ -32,7 +34,8 @@ import org.tmatesoft.svn.core.wc.SVNWCUtil;
  * @version 0.1
  */
 public class SVNForceImport {
-	
+	private static final Logger LOGGER = Logger.getLogger(SVNForceImport.class.getName());
+
 	/**
 	 * Main method, used by hudson until a plugin wrapper can be written.
 	 * 
@@ -140,7 +143,7 @@ public class SVNForceImport {
 		// target directory is required
 		File targetDir = new File(target);
 		if (!targetDir.canRead()) {
-			System.err.println("SVNForceImport Error: target File/Directory not accessable: " + target);
+			LOGGER.severe("SVNForceImport Error: target Directory not accessable: " + target);
 		}
 		
 		// pom is not required, but without it MAJOR/MINOR/PATCH variables won't be available
@@ -149,7 +152,7 @@ public class SVNForceImport {
 		if (null != pomPath){
 			File pom  = new File(pomPath);
 			if (!pom.canRead()){
-				System.err.println("SVNForceImport Error: pom File not accessable: " + pomPath);
+				LOGGER.severe("SVNForceImport Error: pom File not accessable: " + pomPath);
 			}
 			spp.setMajorPath(majorPath);
 			spp.setMinorPath(minorPath);
@@ -176,10 +179,17 @@ public class SVNForceImport {
 			// import each item
 			for (ImportItem item: items){
 				// if the pom and major/minor/patch paths have been included attempt to do some simple replacement
-				item.setName(variableReplace(spp, item.getName()));
+				boolean nullName = false;
+				
+				if ((null == item.getName()) || (item.getName().length() < 1)){
+					nullName = true;
+				}else{
+					
+					item.setName(variableReplace(spp, item.getName()));
+				}
+				
 				item.setPattern(variableReplace(spp, item.getPattern()));
 				item.setPath(variableReplace(spp, item.getPath()));
-				
 				ArrayList<File> files = matchFiles(item.getPattern(), targetDir);
 				String prefix = "";
 				for (int i = 0; i < files.size(); i++){
@@ -187,9 +197,12 @@ public class SVNForceImport {
 					ensurePath(repository, commitClient, svnURL, item.getPath());
 					
 					if (!files.get(i).canRead()) {
-						System.err.println("SVNForceImport Error: File/Directory not accessable: " + files.get(i).getAbsolutePath());
+						LOGGER.severe("SVNForceImport Error: File/Directory not accessable: " + files.get(i).getAbsolutePath());
 					}
-	
+					
+					if (nullName){
+						item.setName(files.get(i).getName());
+					}
 					SVNNodeKind nodeKind = repository.checkPath(item.getPath() + prefix + item.getName(), -1);
 					if (nodeKind == SVNNodeKind.NONE){
 						insertItem(commitClient, svnURL + "/" + item.getPath(), files.get(i), prefix + item.getName());
@@ -205,7 +218,7 @@ public class SVNForceImport {
 			}
 		}catch (SVNException svne) {
 
-			System.err.println("*SVNForceImport Error: " + svne.getMessage());
+			LOGGER.severe("*SVNForceImport Error: " + svne.getMessage());
 		}
 	}
 	
@@ -341,7 +354,7 @@ public class SVNForceImport {
 					constructedPath += dirs[i] + "/";
 					
 				}catch (SVNException svne) {
-					System.err.println("SVNForceImport Error: " + svne.getMessage());
+					LOGGER.severe("SVNForceImport Error: " + svne.getMessage());
 				}
 			}
 		}
