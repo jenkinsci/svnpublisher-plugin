@@ -16,7 +16,7 @@
                 <tbody>
                 	<tr> 
                 		<th>Pattern</th>
-                		<th> Name </th>
+                		<th> Name (blank to not alter) </th>
                 		<th> Path </th>
                 	</tr>
                     <tr>

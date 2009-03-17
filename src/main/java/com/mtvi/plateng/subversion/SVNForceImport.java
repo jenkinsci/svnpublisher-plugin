@@ -177,38 +177,47 @@ public class SVNForceImport {
 			SVNCommitClient commitClient = new SVNCommitClient(authManager, null);
 			
 			// import each item
+			String finalName;
+			String finalPath;
+			String finalPattern;
 			for (ImportItem item: items){
 				// if the pom and major/minor/patch paths have been included attempt to do some simple replacement
 				boolean nullName = false;
 				
+				finalName = "";
+				finalPath= "";
+				finalPattern = "";
+				
 				if ((null == item.getName()) || (item.getName().length() < 1)){
+					LOGGER.info("null Name");
 					nullName = true;
 				}else{
 					
-					item.setName(variableReplace(spp, item.getName()));
+					finalName = variableReplace(spp, item.getName());
 				}
 				
-				item.setPattern(variableReplace(spp, item.getPattern()));
-				item.setPath(variableReplace(spp, item.getPath()));
-				ArrayList<File> files = matchFiles(item.getPattern(), targetDir);
+				finalPattern = variableReplace(spp, item.getPattern());
+				finalPath = variableReplace(spp, item.getPath());
+				
+				ArrayList<File> files = matchFiles(finalPattern, targetDir);
 				String prefix = "";
 				for (int i = 0; i < files.size(); i++){
 					
-					ensurePath(repository, commitClient, svnURL, item.getPath());
+					ensurePath(repository, commitClient, svnURL, finalPath);
 					
 					if (!files.get(i).canRead()) {
 						LOGGER.severe("SVNForceImport Error: File/Directory not accessable: " + files.get(i).getAbsolutePath());
 					}
 					
 					if (nullName){
-						item.setName(files.get(i).getName());
+						finalName = files.get(i).getName();
 					}
-					SVNNodeKind nodeKind = repository.checkPath(item.getPath() + prefix + item.getName(), -1);
+					SVNNodeKind nodeKind = repository.checkPath(finalPath + prefix + finalName, -1);
 					if (nodeKind == SVNNodeKind.NONE){
-						insertItem(commitClient, svnURL + "/" + item.getPath(), files.get(i), prefix + item.getName());
+						insertItem(commitClient, svnURL + "/" + finalPath, files.get(i), prefix + finalName);
 					} else {
-						deleteItem(commitClient, svnURL + "/" + item.getPath() + prefix + item.getName());
-						insertItem(commitClient, svnURL + "/" + item.getPath(), files.get(i), prefix + item.getName());
+						deleteItem(commitClient, svnURL + "/" + finalPath + prefix + finalName);
+						insertItem(commitClient, svnURL + "/" + finalPath, files.get(i), prefix + finalName);
 					}
 					
 					prefix = Integer.toString(i + 1);
@@ -354,7 +363,7 @@ public class SVNForceImport {
 					constructedPath += dirs[i] + "/";
 					
 				}catch (SVNException svne) {
-					LOGGER.severe("SVNForceImport Error: " + svne.getMessage());
+					System.err.println("SVNForceImport Error: " + svne.getMessage());
 				}
 			}
 		}
