@@ -2,6 +2,7 @@
 package com.mtvi.plateng.subversion;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -21,6 +22,7 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.SVNCommitClient;
 import org.tmatesoft.svn.core.wc.SVNWCUtil;
+
 
 
 /**
@@ -89,7 +91,7 @@ public class SVNForceImport {
 
 				}else if(args[i].equalsIgnoreCase("-i")){
 					// add item
-					importItems.add(new ImportItem(args[i+1], args[i+2], args[i+3]));    //args[i+1]);
+					importItems.add(new ImportItem(args[i+1], args[i+2], args[i+3]));
 					i+= 4;
 					
 				}else if(args[i].equalsIgnoreCase("-u")){
@@ -119,7 +121,7 @@ public class SVNForceImport {
 		} catch(Exception e){
 			System.err.println("SVNForceImport Error: Error while parsing options\n");
 		}
-		forceImport(svnURL, user, password, target, importItems, pomPath , null, null, null);
+		forceImport(svnURL, user, password, target, importItems, pomPath ,null, null, null, null, null);
 		
 	}
 	
@@ -136,23 +138,41 @@ public class SVNForceImport {
 	 * @param minorPath		The xml path to the minor version in the pom file.
 	 * @param patchPath		The xml path to the patch version in the pom file.
 	 */
-	public static void forceImport(String svnURL, String user, String password, String target, ArrayList<ImportItem> items, String pomPath, String majorPath, String minorPath, String patchPath){
+	public static void forceImport(String svnURL, String user, String password, String target, ArrayList<ImportItem> items, String pomPath, String majorPath, String minorPath, String patchPath, String workspace, PrintStream stream){
 		
-		
+		if (null != workspace){
+			
+			workspace = workspace.substring(0,workspace.length()-1);
+			target = target.replaceAll("_WORKSPACE_", workspace);
+			stream.println("SVN Publisher: target: " + target);
+			
+			if (null != pomPath){
+				pomPath = pomPath.replaceAll("_WORKSPACE_", workspace);
+				stream.println("SVN Publisher: pomPath: " + pomPath);
+			}
+		}
 		
 		// target directory is required
 		File targetDir = new File(target);
 		if (!targetDir.canRead()) {
 			LOGGER.severe("SVNForceImport Error: target Directory not accessable: " + target);
+			if (null != stream){
+				stream.println("SVN Publisher: Error: target Directory not accessable: " + target);
+			}
 		}
 		
 		// pom is not required, but without it MAJOR/MINOR/PATCH variables won't be available
 
 		SimplePOMParser spp = new SimplePOMParser();
 		if (null != pomPath){
+			
 			File pom  = new File(pomPath);
 			if (!pom.canRead()){
+				
 				LOGGER.severe("SVNForceImport Error: pom File not accessable: " + pomPath);
+				if (null != stream){
+					stream.println("SVN Publisher: Error: pom File not accessable: " + pomPath);
+				}
 			}
 			spp.setMajorPath(majorPath);
 			spp.setMinorPath(minorPath);
@@ -207,6 +227,9 @@ public class SVNForceImport {
 					
 					if (!files.get(i).canRead()) {
 						LOGGER.severe("SVNForceImport Error: File/Directory not accessable: " + files.get(i).getAbsolutePath());
+						if (null != stream){
+							stream.println("SVN Publisher: Error: File/Directory not accessable: " + files.get(i).getAbsolutePath());
+						}
 					}
 					
 					if (nullName){
@@ -215,9 +238,18 @@ public class SVNForceImport {
 					SVNNodeKind nodeKind = repository.checkPath(finalPath + prefix + finalName, -1);
 					if (nodeKind == SVNNodeKind.NONE){
 						insertItem(commitClient, svnURL + "/" + finalPath, files.get(i), prefix + finalName);
+						if (null != stream){
+							stream.println("SVN Publisher: Importing Item: " + prefix + finalName);
+						}
 					} else {
 						deleteItem(commitClient, svnURL + "/" + finalPath + prefix + finalName);
+						if (null != stream){
+							stream.println("SVN Publisher: Deleting Remote Item: " + prefix + finalName);
+						}
 						insertItem(commitClient, svnURL + "/" + finalPath, files.get(i), prefix + finalName);
+						if (null != stream){
+							stream.println("SVN Publisher: Importing Item: " + prefix + finalName);
+						}
 					}
 					
 					prefix = Integer.toString(i + 1);

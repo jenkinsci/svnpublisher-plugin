@@ -8,6 +8,7 @@ import hudson.model.Descriptor;
 import hudson.model.Result;
 import hudson.tasks.Publisher;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,7 @@ import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
+
 
 /**
  * 	The hudson plugin wrapper is based off of (and on occasion copied verbatim from) the twitter plugin
@@ -40,6 +42,7 @@ public class SVNPublisher extends Publisher {
         private String majorPath;
         private String minorPath;
         private String patchPath;
+        private String workspace = "NA";
      
      /**
      * {@stapler-constructor}
@@ -108,9 +111,16 @@ public class SVNPublisher extends Publisher {
     protected <P extends AbstractProject<P, B>, B extends AbstractBuild<P, B>> boolean _perform(B build,
             Launcher launcher, BuildListener listener) {
         if (build.getResult() == Result.SUCCESS){
-
+        	try{
+        		workspace = build.getProject().getWorkspace().toURI().getPath();
+        		listener.getLogger().println("workspace: " + workspace);
+        	}catch (Exception e){
+        		
+        	}
+        
+        	listener.getLogger().println("Attempting to import to SVN: " + svnUrl);
             try {
-                DESCRIPTOR.svnImport(svnUrl, target, items, user, password, pomPath, majorPath, minorPath, patchPath);
+                DESCRIPTOR.svnImport(svnUrl, target, items, user, password, pomPath, majorPath, minorPath, patchPath, workspace, listener.getLogger());
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Unable to import to svn.", e);
             }
@@ -215,11 +225,9 @@ public class SVNPublisher extends Publisher {
             
         }
 
-        public void svnImport(String svnUrl, String target, ArrayList<ImportItem> items, String user, String password, String pomPath,  String majorPath, String minorPath, String patchPath) throws Exception {
-            
-            LOGGER.info("Attempting to import to SVN: " + svnUrl);
-            
-             SVNForceImport.forceImport(svnUrl, user, password, target,  items, pomPath, majorPath, minorPath, patchPath);
+        public void svnImport(String svnUrl, String target, ArrayList<ImportItem> items, String user, String password, String pomPath,  String majorPath, String minorPath, String patchPath, String workspace, PrintStream stream) throws Exception {
+                        
+             SVNForceImport.forceImport(svnUrl, user, password, target,  items, pomPath, majorPath, minorPath, patchPath, workspace, stream);
 	
         }
     }
