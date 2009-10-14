@@ -1,11 +1,14 @@
 package com.mtvi.plateng.subversion;
 
+import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.model.Descriptor;
 import hudson.model.Result;
+import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 
 import java.io.PrintStream;
@@ -28,8 +31,9 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author bsmith
  * 
  */
-public class SVNPublisher extends Publisher {
+public class SVNPublisher extends Notifier {
 
+        @Extension
         public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
         private static final Logger LOGGER = Logger.getLogger(SVNPublisher.class.getName());
 
@@ -58,10 +62,6 @@ public class SVNPublisher extends Publisher {
         this.majorPath = majorPath;
         this.minorPath = minorPath;
         this.patchPath = patchPath;
-    }
-
-    public Descriptor<Publisher> getDescriptor() {
-        return DESCRIPTOR;
     }
 
     public String getSvnUrl() {
@@ -112,7 +112,7 @@ public class SVNPublisher extends Publisher {
             Launcher launcher, BuildListener listener) {
         if (build.getResult() == Result.SUCCESS){
         	try{
-        		workspace = build.getProject().getWorkspace().toURI().getPath();
+        		workspace = build.getWorkspace().toURI().getPath();
         		listener.getLogger().println("workspace: " + workspace);
         	}catch (Exception e){
         		
@@ -129,7 +129,11 @@ public class SVNPublisher extends Publisher {
 
     }
 
-        public static final class DescriptorImpl extends Descriptor<Publisher> {
+    public BuildStepMonitor getRequiredMonitorService() {
+        return BuildStepMonitor.BUILD;
+    }
+
+        public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
             private static final Logger LOGGER = Logger.getLogger(DescriptorImpl.class.getName());
 
             private static final List<String> VALUES_REPLACED_WITH_NULL = Arrays.asList("",
@@ -163,7 +167,7 @@ public class SVNPublisher extends Publisher {
             for (Object key : formData.keySet()) {
                 Object o = formData.get(key);
                 if (o instanceof String) {
-                    if (!VALUES_REPLACED_WITH_NULL.contains(o)) {
+                    if (!VALUES_REPLACED_WITH_NULL.contains((String)o)) {
                         cleaned.put(key, o);
                     }
                 } else {
@@ -174,11 +178,11 @@ public class SVNPublisher extends Publisher {
         }
         
         @Override
-        public boolean configure(StaplerRequest req) throws FormException {
+        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
 
             req.bindParameters(this, "svnpublish.");
             save();
-            return super.configure(req);
+            return super.configure(req, formData);
         }
         
         @Override
@@ -213,6 +217,10 @@ public class SVNPublisher extends Publisher {
             return password;
         }
 
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+            return true;
+        }
         
         @Override
         public Publisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
