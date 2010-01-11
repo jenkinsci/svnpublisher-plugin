@@ -15,6 +15,13 @@
     <description>
         Plugin for Hudson that publishes to SVN.
     </description>
+    <url>http://wiki.hudson-ci.org/display/HUDSON/SVN+Publisher</url>
+    <developers>
+        <developer>
+            <id>brentsmith</id>
+            <name>Brent Smith</name>
+        </developer>
+    </developers>
 
     <dependencies>
         <dependency>
