@@ -8,10 +8,10 @@
     </parent>
 
     <groupId>com.mtvi.plateng.subversion</groupId>
-    <artifactId>svn-publish</artifactId>
+    <artifactId>svnpublisher</artifactId>
     <packaging>hpi</packaging>
     <version>0.1-SNAPSHOT</version>
-    <name>SVN Publish plugin</name>
+    <name>SVN Publisher plugin</name>
     <description>
         Plugin for Hudson that publishes to SVN.
     </description>

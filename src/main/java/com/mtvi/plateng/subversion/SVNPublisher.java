@@ -187,7 +187,7 @@ public class SVNPublisher extends Notifier {
         
         @Override
         public String getDisplayName() {
-            return "SVN";
+            return "Publish to Subversion repository";
         }
 
         public String getSvnUrl() {
@@ -230,7 +230,6 @@ public class SVNPublisher extends Notifier {
             instance.setItems(itemsList);
 
             return instance;
-            
         }
 
         public void svnImport(String svnUrl, String target, ArrayList<ImportItem> items, String user, String password, String pomPath,  String majorPath, String minorPath, String patchPath, String workspace, PrintStream stream) throws Exception {

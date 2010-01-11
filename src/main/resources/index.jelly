@@ -1,3 +1,4 @@
 <div>
-  This plugin is an SVN publish Plugin.
+  This plugin allows you to upload artifacts to a subversion repository.
+  This is done via a delete/import of the items requested.
 </div>
