@@ -1,53 +1,48 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-  <f:entry title="SVN URL:" help="/plugin/svnpublisher/help-svnUrl.html">
-	<input class="setting-input" name="svnpublish.svnUrl" type="text" value="${instance.svnUrl}" />
-  </f:entry>
-  <f:entry title="Target path:" help="/plugin/svnpublisher/help-target.html">
-	<input class="setting-input" name="svnpublish.target" type="text" value="${instance.target}" />
-  </f:entry>
-  
-  <f:entry title="Items:" help="/plugin/svnpublisher/help-items.html">  
-    <f:repeatable var="itm" varStatus="itmStatus" items="${descriptor.getItems(instance)}">
-            <table width="100%">
-                <col width="25%"/>
-                <col width="25%"/>
-                <col width="50%"/>
-
-                <tbody>
-                	<tr> 
-                		<th>Pattern</th>
-                		<th> Name (blank to not alter) </th>
-                		<th> Path </th>
-                	</tr>
-                    <tr>
-                        <td>
-                            <f:textbox name="svnpublish.item.pattern"  value="${itm.pattern}"/>
-                        </td>
-                        
-                        <td>
-                            <f:textbox name="svnpublish.item.name" value="${itm.name}"/>
-                        </td>
-                        
-                        <td>
-                            <f:textbox name="svnpublish.item.path"  value="${itm.path}"/>
-                        </td>
-                    </tr>
-                </tbody>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">    
+    <f:entry title="SVN URL:" field="svnUrl" help="/plugin/svnpublisher/help-svnUrl.html">
+        <f:textbox  />
+    </f:entry>
+    <f:entry title="Base path:" field="target" help="/plugin/svnpublisher/help-target.html" >
+        <f:textbox  />
+    </f:entry>  
+    <f:entry title="${%Credentials}" field="credentialsId">
+        <f:select/>
+    </f:entry>
+    <f:entry title="Commit message:" field="commitMessage" help="/plugin/svnpublisher/help-message.html">
+        <f:textbox  />
+    </f:entry>
+   
+    <f:entry help="/plugin/svnpublisher/help-items.html">
+        <f:repeatable  field="artifacts" minimum="1">            
+            <table>
+                <tr>                    
+                    <td>
+                        <f:entry title="File path" field="localPath">
+                            <f:textbox />
+                        </f:entry>
+                    </td>
+                    <td>
+                        <f:entry title="File Pattern" field="pattern">
+                            <f:textbox />
+                        </f:entry>
+                    </td>
+                    <td>
+                        <f:entry title="SVN path" field="path">
+                            <f:textbox />
+                        </f:entry>
+                    </td>   
+                    <td>
+                        <f:entry title="Final name" field="name">
+                            <f:textbox />
+                        </f:entry>
+                    </td>                      
+                </tr>
             </table>
-    </f:repeatable>
-  </f:entry>
-  <f:advanced>
-    <f:entry title="pom.xml path:" help="/plugin/svnpublisher/help-pom.html">
-      <input class="setting-input" name="svnpublish.pomPath" type="text" value="${instance.pomPath}" />
+            
+             <div align="right">
+                    <f:repeatableDeleteButton/>
+            </div>
+        </f:repeatable>
     </f:entry>
-    <f:entry title="Major path:" help="/plugin/svnpublisher/help-version.html">
-      <input class="setting-input" name="svnpublish.majorPath" type="text" value="${instance.majorPath}" />
-    </f:entry>
-    <f:entry title="Minor path:" help="/plugin/svnpublisher/help-version.html">
-      <input class="setting-input" name="svnpublish.minorPath" type="text" value="${instance.minorPath}" />
-    </f:entry>
-    <f:entry title="Patch path:" help="/plugin/svnpublisher/help-version.html">
-      <input class="setting-input" name="svnpublish.patchPath" type="text" value="${instance.patchPath}" />
-    </f:entry>
-  </f:advanced>
+
 </j:jelly>
